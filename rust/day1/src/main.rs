@@ -74,6 +74,12 @@ mod test {
         assert_eq!(second_list, vec![4, 3, 5, 3, 9, 3]);
     }
 
+    #[bench]
+    pub fn benchmark_parse_input(b: &mut Bencher) {
+        let input = include_str!("../input.txt");
+        b.iter(|| parse_input(input));
+    }
+
     #[test]
     pub fn test_calculate_distance() {
         let (mut first_list, mut second_list) = parse_input(INPUT);
@@ -82,6 +88,7 @@ mod test {
 
         assert_eq!(super::calculate_distance(&first_list, &second_list), 11);
     }
+
     #[bench]
     pub fn benchmark_calculate_distance(b: &mut Bencher) {
         let (mut first_list, mut second_list) = parse_input(include_str!("../input.txt"));
@@ -96,5 +103,12 @@ mod test {
         let (first_list, second_list) = parse_input(INPUT);
 
         assert_eq!(super::similarity_score(&first_list, &second_list), 31);
+    }
+
+    #[bench]
+    pub fn benchmark_similarity_score(b: &mut Bencher) {
+        let (first_list, second_list) = parse_input(include_str!("../input.txt"));
+
+        b.iter(|| super::similarity_score(&first_list, &second_list));
     }
 }
