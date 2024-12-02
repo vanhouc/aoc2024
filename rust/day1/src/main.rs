@@ -1,16 +1,17 @@
+#![feature(test)]
+
 fn main() {
     let input = include_str!("../input.txt");
 
-    let (first_list, second_list) = parse_input(input);
+    let (mut first_list, mut second_list) = parse_input(input);
 
-    // Calculate the answer to part 2 first since the answer to part 1 requires
-    // the lists to be sorted. This prevents having to clone the lists.
+    first_list.sort();
+    second_list.sort();
+
+    let part1_answer = calculate_distance(&first_list, &second_list);
     let part2_answer = similarity_score(&first_list, &second_list);
 
-    let part1_answer = calculate_distance(first_list, second_list);
-
     println!("Part 1: {}", part1_answer);
-
     println!("Part 2: {}", part2_answer);
 }
 
@@ -36,14 +37,13 @@ fn parse_input(input: &str) -> (Vec<u32>, Vec<u32>) {
         })
 }
 
-fn calculate_distance(mut first_list: Vec<u32>, mut second_list: Vec<u32>) -> u32 {
-    first_list.sort();
-    second_list.sort();
+// This function requires both lists to be in ascending order
+fn calculate_distance(first_list: &[u32], second_list: &[u32]) -> u32 {
     first_list
-        .into_iter()
+        .iter()
         .zip(second_list)
         .fold(0, |mut acc, (first, last)| {
-            acc += first.abs_diff(last);
+            acc += first.abs_diff(*last);
             acc
         })
 }
@@ -56,4 +56,45 @@ fn similarity_score(first_list: &[u32], second_list: &[u32]) -> u32 {
                 .filter(|second| *first == **second)
                 .count() as u32))
     })
+}
+
+#[cfg(test)]
+mod test {
+    extern crate test;
+    use super::*;
+    use test::Bencher;
+
+    const INPUT: &str = include_str!("../test.txt");
+
+    #[test]
+    pub fn test_parse_input() {
+        let (first_list, second_list) = parse_input(INPUT);
+
+        assert_eq!(first_list, vec![3, 4, 2, 1, 3, 3]);
+        assert_eq!(second_list, vec![4, 3, 5, 3, 9, 3]);
+    }
+
+    #[test]
+    pub fn test_calculate_distance() {
+        let (mut first_list, mut second_list) = parse_input(INPUT);
+        first_list.sort();
+        second_list.sort();
+
+        assert_eq!(super::calculate_distance(&first_list, &second_list), 11);
+    }
+    #[bench]
+    pub fn benchmark_calculate_distance(b: &mut Bencher) {
+        let (mut first_list, mut second_list) = parse_input(include_str!("../input.txt"));
+        first_list.sort();
+        second_list.sort();
+
+        b.iter(|| super::calculate_distance(&first_list, &second_list));
+    }
+
+    #[test]
+    pub fn test_similarity_score() {
+        let (first_list, second_list) = parse_input(INPUT);
+
+        assert_eq!(super::similarity_score(&first_list, &second_list), 31);
+    }
 }
