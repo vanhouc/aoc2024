@@ -1,9 +1,9 @@
 #![feature(test)]
 
-fn main() {
-    let input = include_str!("../input.txt");
+const INPUT: &str = include_str!("../input.txt");
 
-    let (mut first_list, mut second_list) = parse_input(input);
+fn main() {
+    let (mut first_list, mut second_list) = parse_input(INPUT);
 
     first_list.sort();
     second_list.sort();
@@ -50,11 +50,7 @@ fn calculate_distance(first_list: &[u32], second_list: &[u32]) -> u32 {
 
 fn similarity_score(first_list: &[u32], second_list: &[u32]) -> u32 {
     first_list.iter().fold(0, |acc, first| {
-        acc + (first
-            * (second_list
-                .iter()
-                .filter(|second| *first == **second)
-                .count() as u32))
+        acc + (first * (second_list.iter().filter(|second| first == *second).count() as u32))
     })
 }
 
